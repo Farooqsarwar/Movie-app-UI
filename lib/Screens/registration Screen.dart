@@ -277,27 +277,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   void registerNewUser(BuildContext context) async {
     try {
-      UserCredential userCredential = (await _firebaseAuth.createUserWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
-      ));
-      if (userCredential != null) {
-        // Registration successful, you can navigate to the next screen or perform other actions here.
-        // For example, you can navigate to the login screen:
-        userref.child(userCredential.user!.uid);
-        Map userdata={
-          "name":nameController.text.trim(),
-          "Emial":emailController.text.trim(), 
-          "password":passwordController.text.trim(),
-        };
-        userref.child(userCredential.user!.uid).set(userdata);
-        Navigator.push(context, MaterialPageRoute(builder: (context) => SignIn()));
-      }
+      // Create a new user in Firebase Authentication
+      UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
     } catch (error) {
-      displayToastMsg("Registration Error", context);
+      print("Registration Error: $error");
+      displayToastMsg("Registration Error: $error", context);
     }
-  }
-  void displayToastMsg(String msg, BuildContext context) {
+  }  void displayToastMsg(String msg, BuildContext context) {
     Fluttertoast.showToast(msg: msg,
         textColor: Colors.black,
         backgroundColor: Colors.white);

@@ -145,7 +145,7 @@ class _SignInState extends State<SignIn> {
                 TextButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      loginauthuser(context);
+                      loginUser(context);
                     }
                   },
                   child: Container(
@@ -232,37 +232,25 @@ class _SignInState extends State<SignIn> {
   }
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
-  void loginauthuser(BuildContext context) async {
-    try {
-      UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
-      );
-
-      if (userCredential.user != null) {
-        // Use `DataSnapshot` instead of `DatabaseEvent`
-        DatabaseEvent snap = await userref.child(userCredential.user!.uid).once();
-        if (snap.snapshot != null) {
-          // DataSnapshot has a value, user exists
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>appbar_and_navigationbar()));
-          displaytoastmsg("YOU ARE LOGGED IN", context);
-        } else {
-          // DataSnapshot is null, user doesn't exist
-          //_firebaseAuth.signOut();
-          displaytoastmsg("USER ACCOUNT DOESN'T EXIST", context);
-        }
-      }
-    } catch (e) {
-      displaytoastmsg("Invalid Information", context);
-      // Handle login failure and show an error message if necessary.
+  void loginUser(BuildContext context) async {
+    if (_formKey.currentState!.validate()) {
+      await _firebaseAuth.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      ).then((auth) async {
+        await Fluttertoast.showToast(msg: "Successfully Logged In");
+        Navigator.push(context, MaterialPageRoute(builder: (c) => appbar_and_navigationbar()));
+      }).catchError((errorMessage) {
+        Fluttertoast.showToast(msg: "Error occurred: \n $errorMessage");
+      });
+    } else {
+      Fluttertoast.showToast(msg: "Not all fields are valid");
     }
-  }
-  void displaytoastmsg(String msg, BuildContext context) {
+  }  void displaytoastmsg(String msg, BuildContext context) {
     // Use Fluttertoast.showToast to display a toast message.
     Fluttertoast.showToast(msg: msg,
       textColor: Colors.black,
       backgroundColor: Colors.white
-
     );
   }
 }

@@ -48,6 +48,7 @@ class DefaultFirebaseOptions {
     authDomain: 'movieapp-5d5e0.firebaseapp.com',
     storageBucket: 'movieapp-5d5e0.appspot.com',
     measurementId: 'G-NY5ZJYKVH2',
+    databaseURL: 'https://movieapp-5d5e0-default-rtdb.firebaseio.com'
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -56,6 +57,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '798524512607',
     projectId: 'movieapp-5d5e0',
     storageBucket: 'movieapp-5d5e0.appspot.com',
+      databaseURL: 'https://movieapp-5d5e0-default-rtdb.firebaseio.com'
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -65,6 +67,7 @@ class DefaultFirebaseOptions {
     projectId: 'movieapp-5d5e0',
     storageBucket: 'movieapp-5d5e0.appspot.com',
     iosBundleId: 'com.example.movieapp',
+      databaseURL: 'https://movieapp-5d5e0-default-rtdb.firebaseio.com'
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -74,6 +77,7 @@ class DefaultFirebaseOptions {
     projectId: 'movieapp-5d5e0',
     storageBucket: 'movieapp-5d5e0.appspot.com',
     iosBundleId: 'com.example.movieapp',
+      databaseURL: 'https://movieapp-5d5e0-default-rtdb.firebaseio.com'
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
@@ -84,5 +88,6 @@ class DefaultFirebaseOptions {
     authDomain: 'movieapp-5d5e0.firebaseapp.com',
     storageBucket: 'movieapp-5d5e0.appspot.com',
     measurementId: 'G-YECZPKRNXJ',
+      databaseURL: 'https://movieapp-5d5e0-default-rtdb.firebaseio.com'
   );
 }
