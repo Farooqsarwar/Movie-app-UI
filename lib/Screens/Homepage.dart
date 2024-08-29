@@ -1,12 +1,10 @@
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:movieapp/Screens/tv%20series%20screen.dart';
 import 'package:movieapp/Screens/watchlater%20controler.dart';
-
 import 'package:provider/provider.dart';
-import 'package:scroll_snap_list/scroll_snap_list.dart';
 import 'detial screen.dart';
 import 'movies.dart';
 class Homepage extends StatefulWidget {
@@ -26,7 +24,6 @@ class _HomepageState extends State<Homepage> {
   List<dynamic> _jsonData1 = [];
   List<dynamic> _jsonData2 = [];
   List<dynamic> _tvseries = [];
-
   @override
   void initState() {
     super.initState();
@@ -55,7 +52,6 @@ class _HomepageState extends State<Homepage> {
       print('Failed to load data: $e');
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,22 +68,29 @@ class _HomepageState extends State<Homepage> {
           children: [
             Expanded(
               flex: 2,
-              child: ScrollSnapList(
+              child: CarouselSlider.builder(
+                options: CarouselOptions(
+                  height: 200.0, // Adjust height as needed
+                  enlargeCenterPage: true,
+                  enableInfiniteScroll: true,
+                  pageSnapping: true,
+                  autoPlay: true, // Enables auto-scrolling
+                  viewportFraction: 0.33, // Adjust to control space between items
+                  onPageChanged: (index, reason) {
+                    setState(() {
+                      index1 = index;
+                      title = _jsonData1[index]['name'];
+                      genre = (_jsonData1[index]['genre'] as List<dynamic>).join(", ");
+                      year = _jsonData1[index]['year'];
+                      rating = _jsonData1[index]['ratingValue'];
+                      poster_url = _jsonData1[index]['poster_url'];
+                    });
+                  },
+                ),
                 itemCount: _jsonData1.length,
-                itemSize: 120, // Set the item size
-                dynamicItemSize: true,
-                onItemFocus: (index) {
-                  setState(() {
-                    index1 = index;
-                    title = _jsonData1[index]['name'];
-                    genre = (_jsonData1[index]['genre'] as List<dynamic>).join(", ");
-                    year = _jsonData1[index]['year'];
-                    rating = _jsonData1[index]['ratingValue'];
-                    poster_url = _jsonData1[index]['poster_url'];
-                  });
+                itemBuilder: (context, index, realIndex) {
+                  return _buildListItem(context, index);
                 },
-                scrollDirection: Axis.horizontal,
-                itemBuilder: _buildListItem,
               ),
             ),
             SizedBox(height: 8), // Adjust the height to reduce space
@@ -218,7 +221,6 @@ class _HomepageState extends State<Homepage> {
       ),
     );
   }
-
   Widget _buildListItem(BuildContext context, int index) {
     return GestureDetector(
       onTap: () {
@@ -239,15 +241,9 @@ class _HomepageState extends State<Homepage> {
       child: Container(
         width: 150,
         height: 150,
-        child: Column(
-          children: [
-            Expanded(
-              child: Image.network(
-                _jsonData1[index]['poster_url'],
-                fit: BoxFit.cover,
-              ),
-            ),
-          ],
+        child: Image.network(
+          _jsonData1[index]['poster_url'],
+          fit: BoxFit.cover,
         ),
       ),
     );

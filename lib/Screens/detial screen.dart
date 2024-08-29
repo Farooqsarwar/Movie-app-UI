@@ -31,7 +31,7 @@ class MovieDetailScreen extends StatelessWidget {
               children: [
                 Image.network(
                   poster_url,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.fill,
                   width: double.infinity,
                   height: 300,
                 ),

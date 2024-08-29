@@ -34,6 +34,7 @@ class _Splas_screenState extends State<Splas_screen> {
           children: [
             const CircleAvatar(
               backgroundImage: AssetImage("assets/logo.png"),
+              backgroundColor: Colors.transparent,
               radius: 45,
             ),
             const SizedBox(height: 20),
