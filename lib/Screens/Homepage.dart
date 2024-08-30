@@ -68,14 +68,17 @@ class _HomepageState extends State<Homepage> {
           children: [
             Expanded(
               flex: 2,
-              child: CarouselSlider.builder(
+             child: CarouselSlider.builder(
                 options: CarouselOptions(
-                  height: 200.0, // Adjust height as needed
+                  height: 250.0, // Adjust height as needed
                   enlargeCenterPage: true,
                   enableInfiniteScroll: true,
                   pageSnapping: true,
-                  autoPlay: true, // Enables auto-scrolling
+                  autoPlayCurve: Curves. fastOutSlowIn,
+                  autoPlay: true, // Disables auto-scrolling
                   viewportFraction: 0.33, // Adjust to control space between items
+                  scrollPhysics: ClampingScrollPhysics(),
+                  pauseAutoPlayOnTouch: true,
                   onPageChanged: (index, reason) {
                     setState(() {
                       index1 = index;
@@ -120,7 +123,6 @@ class _HomepageState extends State<Homepage> {
                             rating: _jsonData1[index1]['ratingValue'],
                             poster_url: _jsonData1[index1]['poster_url'],
                             summary_text:  _jsonData1[index1]['summary_text'],
-
                           ),
                         ),
                       );
@@ -134,12 +136,13 @@ class _HomepageState extends State<Homepage> {
                   ),
                   TextButton(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Feature will be added "),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => YoutubePlayerScreen(movieName: title),
                         ),
                       );
-                      },
+                    },
                     child: Container(
                       width: 170,
                       height: 50,
@@ -240,7 +243,7 @@ class _HomepageState extends State<Homepage> {
       },
       child: Container(
         width: 150,
-        height: 150,
+        height: 250,
         child: Image.network(
           _jsonData1[index]['poster_url'],
           fit: BoxFit.cover,

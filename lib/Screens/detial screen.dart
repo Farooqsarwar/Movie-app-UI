@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:movieapp/Screens/watchlater%20controler.dart';
 import 'package:provider/provider.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:movieapp/Screens/watchlater%20controler.dart';
 
 class MovieDetailScreen extends StatelessWidget {
   final String title;
@@ -8,13 +11,16 @@ class MovieDetailScreen extends StatelessWidget {
   final String rating;
   final String poster_url;
   final String summary_text;
-  MovieDetailScreen({super.key,
+
+  MovieDetailScreen({
+    super.key,
     required this.title,
     required this.year,
     required this.rating,
     required this.poster_url,
     required this.summary_text,
   });
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,9 +30,13 @@ class MovieDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 30,),
-            IconButton(onPressed: (){
-              Navigator.pop(context);
-            }, icon: Icon(Icons.arrow_back_sharp),color: Colors.white,),
+            IconButton(
+              onPressed: (){
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.arrow_back_sharp),
+              color: Colors.white,
+            ),
             Stack(
               children: [
                 Image.network(
@@ -72,11 +82,13 @@ class MovieDetailScreen extends StatelessWidget {
                               Icons.star,
                               color: Colors.yellow,
                             ),
-                            Text(rating,
+                            Text(
+                              rating,
                               style: TextStyle(color: Colors.white),
                             ),
                             SizedBox(width: 30),
-                            Text('Year :$year',
+                            Text(
+                              'Year: $year',
                               style: TextStyle(color: Colors.white),
                             ),
                           ],
@@ -101,19 +113,18 @@ class MovieDetailScreen extends StatelessWidget {
                     ),
                     child: TextButton(
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Feature will be added "),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => YoutubePlayerScreen(movieName: title),
                           ),
                         );
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                         children: [
                           Text('Watch'),
                           Icon(Icons.play_arrow),
-
                         ],
                       ),
                     ),
@@ -127,19 +138,18 @@ class MovieDetailScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: TextButton(
-                      onPressed: ()
-                      {
+                      onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text("Feature will be added "),
                           ),
-                        );                      },
+                        );
+                      },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text('Download'),
                           Icon(Icons.download),
-
                         ],
                       ),
                     ),
@@ -161,7 +171,7 @@ class MovieDetailScreen extends StatelessWidget {
                           'rating': rating,
                         });
                       },
-                      icon: Icon(Icons.add_to_home_screen),iconSize: 22,
+                      icon: Icon(Icons.add_to_home_screen), iconSize: 22,
                       color: Colors.white,
                     ),
                     const Text(
@@ -177,9 +187,14 @@ class MovieDetailScreen extends StatelessWidget {
                   children: [
                     IconButton(
                       onPressed: () {
-                        print("Open trailer");
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => YoutubePlayerScreen(movieName: title),
+                          ),
+                        );
                       },
-                      icon: Icon(Icons.movie_filter),iconSize: 22,
+                      icon: Icon(Icons.movie_filter), iconSize: 22,
                       color: Colors.white,
                     ),
                     const Text(
@@ -197,7 +212,7 @@ class MovieDetailScreen extends StatelessWidget {
                       onPressed: () {
                         print("Share movie");
                       },
-                      icon: Icon(Icons.share),iconSize: 22,
+                      icon: Icon(Icons.share), iconSize: 22,
                       color: Colors.white,
                     ),
                     const Text(
@@ -209,14 +224,13 @@ class MovieDetailScreen extends StatelessWidget {
                   ],
                 ),
                 SizedBox(width: 100,),
-
                 Column(
                   children: [
                     IconButton(
                       onPressed: () {
-                        print("Report novie");
+                        print("Report movie");
                       },
-                      icon: Icon(Icons.flag_outlined),iconSize: 22,
+                      icon: Icon(Icons.flag_outlined), iconSize: 22,
                       color: Colors.white,
                     ),
                     const Text(
@@ -230,11 +244,92 @@ class MovieDetailScreen extends StatelessWidget {
               ],
             ),
             SizedBox(height: 10,),
-            Text("summry".toUpperCase(),style: TextStyle(color: Colors.yellow),),
-            Text("$summary_text",style: TextStyle(color: Colors.white),)
+            Text("SUMMARY".toUpperCase(), style: TextStyle(color: Colors.yellow),),
+            Text("$summary_text", style: TextStyle(color: Colors.white),)
           ],
         ),
       ),
     );
+  }
+}
+
+class YoutubePlayerScreen extends StatefulWidget {
+  final String movieName;
+
+  YoutubePlayerScreen({required this.movieName});
+
+  @override
+  _YoutubePlayerScreenState createState() => _YoutubePlayerScreenState();
+}
+
+class _YoutubePlayerScreenState extends State<YoutubePlayerScreen> {
+  late YoutubePlayerController _controller;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTrailer();
+  }
+
+  Future<void> _fetchTrailer() async {
+    try {
+      String videoId = await searchYoutubeTrailer(widget.movieName);
+      _controller = YoutubePlayerController(
+        initialVideoId: videoId,
+        flags: YoutubePlayerFlags(
+          autoPlay: true,
+          mute: false,
+        ),
+      );
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Failed to load trailer: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<String> searchYoutubeTrailer(String movieName) async {
+    String apiKey = 'AIzaSyCDo7ezBg-2EEgIcTS0dOtp_CsqlT7_q1Y'; // Replace with your YouTube API key
+    String query = Uri.encodeComponent("$movieName trailer");
+    String url = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=$query&type=video&key=$apiKey";
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final videoId = data['items'][0]['id']['videoId'];
+      return videoId;
+    } else {
+      throw Exception('Failed to load YouTube video');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Watch Trailer",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.black,
+      ),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : YoutubePlayer(
+        controller: _controller,
+        showVideoProgressIndicator: true,
+        progressIndicatorColor: Colors.red,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }

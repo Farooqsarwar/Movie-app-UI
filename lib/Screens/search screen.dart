@@ -108,7 +108,6 @@ class _MovieSearchPageState extends State<MovieSearchPage> {
                           rating: _filteredMovies[index]['ratingValue'],
                           poster_url: _filteredMovies[index]['poster_url'],
                           summary_text:  _filteredMovies[index]['summary_text'],
-
                         ),
                       ),
                     );
