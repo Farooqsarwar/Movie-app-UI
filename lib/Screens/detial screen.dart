@@ -275,16 +275,23 @@ class _YoutubePlayerScreenState extends State<YoutubePlayerScreen> {
   Future<void> _fetchTrailer() async {
     try {
       String videoId = await searchYoutubeTrailer(widget.movieName);
-      _controller = YoutubePlayerController(
-        initialVideoId: videoId,
-        flags: YoutubePlayerFlags(
-          autoPlay: true,
-          mute: false,
-        ),
-      );
-      setState(() {
-        _isLoading = false;
-      });
+      if (videoId.isNotEmpty) {
+        setState(() {
+          _controller = YoutubePlayerController(
+            initialVideoId: videoId,
+            flags: YoutubePlayerFlags(
+              autoPlay: true,
+              mute: false,
+            ),
+          );
+          _isLoading = false;
+        });
+      } else {
+        // Handle case where no video ID is found
+        setState(() {
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       print('Failed to load trailer: $e');
       setState(() {
@@ -294,14 +301,19 @@ class _YoutubePlayerScreenState extends State<YoutubePlayerScreen> {
   }
 
   Future<String> searchYoutubeTrailer(String movieName) async {
-    String apiKey = 'AIzaSyCDo7ezBg-2EEgIcTS0dOtp_CsqlT7_q1Y'; // Replace with your YouTube API key
+    String apiKey = 'hkhjhhhhkhkhkhkjhhkkjhhkjhhk';
     String query = Uri.encodeComponent("$movieName trailer");
     String url = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=$query&type=video&key=$apiKey";
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      final videoId = data['items'][0]['id']['videoId'];
-      return videoId;
+      if (data['items'].isNotEmpty) {
+        final videoId = data['items'][0]['id']['videoId'];
+        print('Video ID: $videoId'); // Debug statement
+        return videoId;
+      } else {
+        throw Exception('No video found');
+      }
     } else {
       throw Exception('Failed to load YouTube video');
     }
@@ -319,6 +331,8 @@ class _YoutubePlayerScreenState extends State<YoutubePlayerScreen> {
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
+          : _controller == null
+          ? Center(child: Text('No video available'))
           : YoutubePlayer(
         controller: _controller,
         showVideoProgressIndicator: true,
